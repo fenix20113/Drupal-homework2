@@ -1,0 +1,9 @@
+name = my_module
+description = "my first module"
+package = my modules
+core = 7.x
+files[] = my_module.module,rss.tpl.php
+version = "7.x-dev"
+core = "7.x"
+project = "my_module"
+datestamp = "3.02.2014"

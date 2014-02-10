@@ -1,0 +1,64 @@
+<?php
+
+function mymodule_block_info()
+{
+
+    $blocks ['myblock'] = array(
+
+        'info' => "my block"
+
+    );
+    return $blocks;
+}
+
+function mymodule_block_view($delta = '')
+{
+
+    switch ($delta) {
+        case 'myblock':
+            $block['content'] = myblock_view();
+            break;
+    }
+    return $block;
+
+}
+
+function mymodule_nodeapi()
+{
+
+
+}
+
+
+function myblock_view()
+{
+
+    $html = "";
+    $url = "http://news.liga.net/all/rss.xml";
+    $xml = simplexml_load_file($url);
+    $rows = array();
+    $rows[] = $xml->channel->title;
+    for ($i = 0; $i < 5; $i++) {
+        $rows[] = array(
+            'title' => $xml->channel->item[$i]->title,
+            'desc'  => $xml->channel->item[$i]->description,
+            'url'   => $xml->channel->item[$i]->link,
+        );
+    }
+
+    $output = theme('rss', array('rows' => $rows));
+    return $output;
+}
+
+function mymodule_theme()
+{
+    return array(
+
+        'rss' => array(
+
+            'template' => 'rss',
+            'variables' => array('rows' => array()),
+
+        )
+    );
+}
