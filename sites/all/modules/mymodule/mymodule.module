@@ -23,11 +23,6 @@ function mymodule_block_view($delta = '')
 
 }
 
-function mymodule_nodeapi()
-{
-
-
-}
 
 
 function myblock_view()
@@ -41,24 +36,124 @@ function myblock_view()
     for ($i = 0; $i < 5; $i++) {
         $rows[] = array(
             'title' => $xml->channel->item[$i]->title,
-            'desc'  => $xml->channel->item[$i]->description,
-            'url'   => $xml->channel->item[$i]->link,
+            'desc' => $xml->channel->item[$i]->description,
+            'url' => $xml->channel->item[$i]->link,
         );
     }
 
-    $output = theme('rss', array('rows' => $rows));
+    $output = theme('rssblock', array('rows' => $rows));
     return $output;
 }
+
+
 
 function mymodule_theme()
 {
     return array(
 
-        'rss' => array(
+        'rssblock' => array(
 
-            'template' => 'rss',
+            'template' => 'rssblock',
             'variables' => array('rows' => array()),
 
         )
     );
 }
+
+
+
+
+
+function mymodule_menu()
+{
+
+    $items = array();
+    $items['rss'] = array(
+
+        'title callback' => 'load_title',
+        'description' => 'my rss-reader page',
+        'page callback' => 'load_rss',
+        'access callback' => TRUE,
+    );
+
+    $items['rss/%'] = array(
+
+        'title callback' => 'load_title',
+        'description' => 'my rss-reader page',
+        'page callback' => 'mymodule_page',
+        'page arguments' => array(1),
+        'access callback' => TRUE,
+
+    );
+
+    return $items;
+
+}
+
+
+
+function load_title()
+{
+    $url = "http://news.liga.net/all/rss.xml";
+    $xml = simplexml_load_file($url);
+    for ($i = 0; $i < 5; $i++) {
+        $rows[] = array(
+            'title' => $xml->channel->item[$i]->title,
+            'desc' => $xml->channel->item[$i]->description,
+            'url' => $xml->channel->item[$i]->link,
+        );
+    }
+
+    $cnltitle = $xml->channel->title;
+
+    return $cnltitle ;
+
+}
+
+
+function load_rss()
+{
+
+    $url = "http://news.liga.net/all/rss.xml";
+    $xml = simplexml_load_file($url);
+    $rows = array();
+    $rows[] = $xml->channel->title;
+    for ($i = 0; $i < 5; $i++) {
+        $rows[] = array(
+            'title' => $xml->channel->item[$i]->title,
+            'desc' => $xml->channel->item[$i]->description,
+            'url' => $xml->channel->item[$i]->link,
+        );
+    }
+
+
+    return theme('rssblock', array('rows' => $rows));
+}
+
+
+function mymodule_page($param)
+{
+    $url = "http://news.liga.net/all/rss.xml";
+    $xml = simplexml_load_file($url);
+    $rows = array();
+    $rows[] = $xml->channel->title;
+    for ($i = 0; $i < 5; $i++) {
+        $rows[] = array(
+            'title' => $xml->channel->item[$i]->title,
+            'desc' => $xml->channel->item[$i]->description,
+            'url' => $xml->channel->item[$i]->link,
+        );
+    }
+
+
+    if (!$rows[$param]) {
+
+        return false;
+    } else {
+
+        $srows[] = $rows[$param];
+
+        return theme('rssblock', array('rows' => $srows));
+    }
+}
+
