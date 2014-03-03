@@ -1,17 +1,16 @@
 <ul style="list-style: none">
 
-    <li style="text-align: center;font-size: 16px">TOP 5 НОВОСТЕЙ</li>
-
-    <li>
-        <?php foreach ($rows as $row): ?>
+     <li>
+        <?php foreach ($rows->channel->item as $item): ?>
 
             <ul style="list-style: none; padding: 0; margin-bottom: 10px;">
                 <li>
-                    <a href="<?php print $row['url'] ?>">
-                        <h2 style="border:none; font-size: 16px"><?php print $row['title']; ?> </h2>
+                    <a href="<?php print $item->link ?>">
+                        <h2 style="border:none; font-size: 16px"><?php print $item->title; ?> </h2>
                     </a>
                 </li>
-                <li><?php print $row['desc']; ?></li>
+                <li><?php print $item->description; ?></li>
+                <li style="color: red"><?php print $item->pubDate; ?></li>
             </ul>
         <?php endforeach; ?>
     </li>

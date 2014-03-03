@@ -24,28 +24,25 @@ function mymodule_block_view($delta = '')
 }
 
 
-
 function myblock_view()
 {
 
-    $html = "";
-    $url = "http://news.liga.net/all/rss.xml";
+    $url = variable_get('rss_setting');
     $xml = simplexml_load_file($url);
-    $rows = array();
-    $rows[] = $xml->channel->title;
-    for ($i = 0; $i < 5; $i++) {
-        $rows[] = array(
-            'title' => $xml->channel->item[$i]->title,
-            'desc' => $xml->channel->item[$i]->description,
-            'url' => $xml->channel->item[$i]->link,
+
+    if (!empty($xml)) {
+
+        $rss_feed = theme('rssblock', array('rows' => $xml));
+        return $rss_feed;
+    } else {
+        $rss_feed['rss_feeds_arguments'] = array(
+            '#title' => t('All posts from the last week'),
+            '#markup' => t('No posts available.'),
         );
+        return $rss_feed;
     }
 
-    $output = theme('rssblock', array('rows' => $rows));
-    return $output;
 }
-
-
 
 function mymodule_theme()
 {
@@ -55,13 +52,16 @@ function mymodule_theme()
 
             'template' => 'rssblock',
             'variables' => array('rows' => array()),
+        ),
+
+        'rss_simple' => array(
+
+            'template' => 'rss_simple',
+            'variables' => array('simple_feed' => array()),
 
         )
     );
 }
-
-
-
 
 
 function mymodule_menu()
@@ -86,27 +86,27 @@ function mymodule_menu()
 
     );
 
+    $items['admin/settings/mymodule'] = array(
+        'title' => 'Setting RSS',
+        'description' => 'Description of mymodule RSS',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('mymodule_admin'),
+        'access arguments' => array('administer site configuration'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+
     return $items;
 
 }
 
 
-
 function load_title()
 {
-    $url = "http://news.liga.net/all/rss.xml";
+    $url = variable_get('rss_setting');
     $xml = simplexml_load_file($url);
-    for ($i = 0; $i < 5; $i++) {
-        $rows[] = array(
-            'title' => $xml->channel->item[$i]->title,
-            'desc' => $xml->channel->item[$i]->description,
-            'url' => $xml->channel->item[$i]->link,
-        );
-    }
-
     $cnltitle = $xml->channel->title;
 
-    return $cnltitle ;
+    return $cnltitle;
 
 }
 
@@ -114,46 +114,50 @@ function load_title()
 function load_rss()
 {
 
-    $url = "http://news.liga.net/all/rss.xml";
+
+    $url = variable_get('rss_setting');
     $xml = simplexml_load_file($url);
-    $rows = array();
-    $rows[] = $xml->channel->title;
-    for ($i = 0; $i < 5; $i++) {
-        $rows[] = array(
-            'title' => $xml->channel->item[$i]->title,
-            'desc' => $xml->channel->item[$i]->description,
-            'url' => $xml->channel->item[$i]->link,
+
+    if (!empty($xml)) {
+        $rss_feed = theme('rssblock', array('rows' => $xml));
+        return $rss_feed;
+    } else {
+        $rss_feed['rss_feeds_arguments'] = array(
+            '#title' => t('All posts from the last week'),
+            '#markup' => t('No posts available.'),
         );
+        return $rss_feed;
     }
 
 
-    return theme('rssblock', array('rows' => $rows));
 }
 
 
 function mymodule_page($param)
 {
-    $url = "http://news.liga.net/all/rss.xml";
+
+    $url = variable_get('rss_setting');
     $xml = simplexml_load_file($url);
-    $rows = array();
-    $rows[] = $xml->channel->title;
-    for ($i = 0; $i < 5; $i++) {
-        $rows[] = array(
-            'title' => $xml->channel->item[$i]->title,
-            'desc' => $xml->channel->item[$i]->description,
-            'url' => $xml->channel->item[$i]->link,
-        );
-    }
 
-
-    if (!$rows[$param]) {
-
+    if (!$xml->channel->item[(int)$param]) {
         return false;
     } else {
-
-        $srows[] = $rows[$param];
-
-        return theme('rssblock', array('rows' => $srows));
+        $simple = $xml->channel->item[(int)$param];
+        return theme('rss_simple', array('simple_feed' => $simple));
     }
 }
 
+
+function mymodule_admin()
+{
+    $form = array();
+    $form['rss_setting'] = array(
+        '#type' => 'textfield',
+        '#title' => t('My module RSS setting'),
+        '#default_value' => variable_get('rss_setting'),
+        '#size' => 100,
+        '#description' => t("paste in this field your RSS-link"),
+        '#required' => TRUE,
+    );
+    return system_settings_form($form);
+}

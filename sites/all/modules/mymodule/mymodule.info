@@ -3,6 +3,7 @@ description = "my first module"
 package = my modules
 core = 7.x
 files[] = my_module.module,rss.tpl.php
+configure = admin/settings/mymodule
 version = "7.x-dev"
 core = "7.x"
 project = "my_module"
