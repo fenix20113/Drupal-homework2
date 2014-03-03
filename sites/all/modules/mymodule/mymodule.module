@@ -156,7 +156,7 @@ function mymodule_admin()
         '#title' => t('My module RSS setting'),
         '#default_value' => variable_get('rss_setting'),
         '#size' => 100,
-        '#description' => t("paste in this field your RSS-link"),
+        '#description' => t("please insert in this field your RSS-link"),
         '#required' => TRUE,
     );
     return system_settings_form($form);
